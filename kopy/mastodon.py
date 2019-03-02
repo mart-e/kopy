@@ -1,5 +1,5 @@
 from mastodon import Mastodon
-from .base import BaseExtractor
+from .base import BaseExtractor, Status
 
 
 class MastodonExtractor(BaseExtractor):
@@ -23,9 +23,10 @@ class MastodonExtractor(BaseExtractor):
 </li>
 """
 
-    def unify_status_format(self, status):
-        return {
-            'date': status['date'],
-            'author': status['account']['username'],
-            'content': status['content'],
-        }
+    def convert_status(self, status):
+        return Status(
+            date=status['date'],
+            author=status['account']['username'],
+            content=status['content'],
+            extractor_name=self.name,
+        )

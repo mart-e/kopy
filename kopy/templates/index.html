@@ -1,0 +1,18 @@
+<!doctype html>
+<title>Kopy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<nav>
+  <h1><a href="{{ url_for('index') }}">Kopy</a></h1>
+</nav>
+<section class="content">
+  <header>
+    Statuses
+  </header>
+  {% for status in manager._items %}
+    <p>
+        <strong>{{ status.author }}</strong>
+        (on {{ status.extractor }}):
+        {{ status.content }}
+    </p>
+  {% endfor %}
+</section>

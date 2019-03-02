@@ -1,5 +1,5 @@
 import tweepy
-from .base import BaseExtractor
+from .base import BaseExtractor, Status
 
 
 class TwitterExtractor(BaseExtractor):
@@ -21,9 +21,10 @@ class TwitterExtractor(BaseExtractor):
     {status.text}
 </li>
 """
-    def unify_status_format(self, status):
-        return {
-            'date': status.date,
-            'author': status.user.name,
-            'content': status.text,
-        }
+    def convert_status(self, status):
+        return Status(
+            date=status.date,
+            author=status.user.name,
+            content=status.text,
+            extractor_name=self.name,
+        )

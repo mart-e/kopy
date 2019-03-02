@@ -1,3 +1,5 @@
+import bisect
+
 class BaseExtractor:
 
     def __init__(self, name):
@@ -23,19 +25,31 @@ class BaseExtractor:
         """
         raise NotImplementedError
 
-    def unify_status_format(self, status):
+    def convert_status(self, status):
         """
-        From a status item (internal implementation) returns a dictionnary with
-        the following format:
-        {
-            'date': <timestamp>,
-            'author': <string>,
-            'content': <string>,
-        }
+        From a status item (internal implementation) returns a Status object
         """
         raise NotImplementedError
+
+class Status:
+
+    def __init__(self, date, author, content, extractor_name):
+        self.date = date
+        self.author = author
+        self.content = content
+        self.extractor = extractor_name
+
+    def __lt__(self, other):
+        return self.date < other.date
 
 class StatusManager:
 
     def __init__(self):
-        self.items = []
+        self._items = []
+
+    def add(self, status):
+        """ Insert a status while maintaining the order """
+        bisect.insort_left(self._items, status)
+
+    def fetch(self, count=10, desc=True, offset=0):
+        pass
