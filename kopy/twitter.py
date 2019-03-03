@@ -23,8 +23,11 @@ class TwitterExtractor(BaseExtractor):
 """
     def convert_status(self, status):
         return Status(
-            date=status.date,
+            sid=status.id,
+            date=status.created_at,
             author=status.user.name,
+            author_avatar=status.user.profile_image_url_https,
             content=status.text,
-            extractor_name=self.name,
+            extractor=self.name,
+            url=f"https://twitter.com/{status.user.screen_name}/status/{status.id}"
         )

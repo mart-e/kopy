@@ -25,8 +25,11 @@ class MastodonExtractor(BaseExtractor):
 
     def convert_status(self, status):
         return Status(
-            date=status['date'],
+            sid=status['id'],
+            date=status['created_at'].replace(tzinfo=None),
             author=status['account']['username'],
+            author_avatar=status['account']['avatar'],
             content=status['content'],
-            extractor_name=self.name,
+            url=status['url'],
+            extractor=self.name,
         )

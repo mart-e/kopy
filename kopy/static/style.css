@@ -1,0 +1,32 @@
+body {
+    font-family: 'Georgia', serif;
+    color: #000;
+    padding: 1rem;
+    width: 540px;
+    margin: 40px auto;
+    font-size: 17px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: serif;
+    color: #377ba8;
+    margin: 1rem 0;
+}
+
+a {
+    color: #004B6B;
+}
+a:hover {
+    color: #6D4100;
+}
+
+article {
+    line-height: 1.4;
+    padding: 5px;
+    border: 1px #eee solid;
+}
+
+article footer {
+    font-weight: italic;
+}
+

@@ -1,0 +1,16 @@
+{
+    "Twitter": {
+        "site_type": "twitter",
+        "consumer_key": "1234",
+        "consumer_secret": "5678",
+        "access_token_key": "abcd",
+        "access_token_secret": "efgh"
+    },
+    "Mamot": {
+        "site_type": "mastodon",
+        "api_base_url": "https://mamot.fr",
+        "client_id": "1234",
+        "secret": "abcd",
+        "access_token": "efgh"
+    }
+}

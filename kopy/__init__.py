@@ -9,16 +9,11 @@ def create_app():
     app = Flask(__name__)
 
     manager = StatusManager()
-    page_content = ""
 
     with open('/home/mart/programmation/kopy/config.json') as f:
         config = json.load(f)
 
     for name, site_config in config.items():
-        # page_content += f"""
-        # <h2>Statuses from {name}</h2>
-        # <ul>
-        # """
         if site_config['site_type'] == "twitter":
             from .twitter import TwitterExtractor
             extractor = TwitterExtractor(name)
@@ -27,15 +22,16 @@ def create_app():
             extractor = MastodonExtractor(name)
         else:
             raise NotImplementedError
-
         extractor.parse_config(site_config)
-        statuses = extractor.get_statuses()
-        for status in statuses:
-            manager.add(extractor.convert_status(status))
-        # page_content += "</ul>"
+        manager.extractors.append(extractor)
+
 
     @app.route('/')
     def main():
-        return render_template('main.html', manager)
+        for extractor in manager.extractors:
+            statuses = extractor.get_statuses()
+            for status in statuses:
+                manager.add(extractor.convert_status(status))
+        return render_template('index.html', manager=manager)
 
     return app
