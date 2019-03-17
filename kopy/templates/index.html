@@ -14,7 +14,6 @@
       {% for status in manager.fetch(20) %}
           <article>
             <header>
-              <p>
                 <img src="{{ status.r_author_avatar }}" class="avatar"/>
                 <strong>
                   <a href="{{ status.r_author_url }}">{{ status.r_author }}</a>
@@ -24,7 +23,6 @@
                     ♺ by <a href="{{ status.author_url }}">{{ status.author}}</a>
                   </span>
                 {% endif %}
-              </p>
             </header>
             <div class="content">
               {{ status.r_content|safe }}

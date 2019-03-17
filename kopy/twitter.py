@@ -27,12 +27,14 @@ class TwitterExtractor(BaseExtractor):
             for entity in entry.entities['urls']:
                 text = text.replace(
                     entity['url'],
-                    f"<a href='{entity['expanded_url']}'>{entity['display_url']}</a>"
+                    f"<a href='{entity['expanded_url']}' rel='nofollow noopener'" \
+                    f" target='_blank'>{entity['display_url']}</a>"
                 )
             for entity in entry.entities.get('media', []):
                 text = text.replace(
                     entity['url'],
-                    f"<a href='{entity['expanded_url']}'>{entity['display_url']}</a>"
+                    f"<a href='{entity['expanded_url']}' rel='nofollow noopener'" \
+                    f" target='_blank'>{entity['display_url']}</a>"
                 )
             return text
 

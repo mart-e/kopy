@@ -5,7 +5,7 @@ interface.
 
 **Still very early stage, lot of missing features, mostly for testing**
 
-![Kopy-screenshot](https://user-images.githubusercontent.com/564822/54488130-5d5e3b00-489e-11e9-8328-de69f5642361.png)
+![Kopy-screenshot](https://user-images.githubusercontent.com/564822/54489970-1f6b1200-48b2-11e9-9f62-cb478ba2fd69.png)
 
 ## Dependencies
 

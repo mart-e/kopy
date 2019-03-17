@@ -21,14 +21,10 @@ a:hover {
 }
 
 article {
-    line-height: 1.2em;
-    padding: 10px;
     border: 1px #eee solid;
+    position: relative;
+    padding: 10px 10px 10px 75px;
 }
-article p {
-    margin: 0.3em 0;
-}
-
 
 article header .status_info {
     font-size: 0.9em;
@@ -36,9 +32,11 @@ article header .status_info {
     color: darkgrey;
 }
 
-article header img {
-    max-width: 30px;
-    max-height: 30px;
+article header img.avatar {
+    max-width: 48px;
+    max-height: 48px;
+    position: absolute;
+    left: 15px;
 }
 
 article header .status_info a {
@@ -47,7 +45,10 @@ article header .status_info a {
 
 
 article .content {
-    margin: 0.3em 0;
+    padding: 10px 0;
+}
+article p {
+    line-height: 1em;
 }
 
 article footer {
