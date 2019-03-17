@@ -48,7 +48,7 @@ article .content {
     padding: 10px 0;
 }
 article p {
-    line-height: 1em;
+    margin: 0;
 }
 
 article footer {
