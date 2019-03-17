@@ -24,12 +24,29 @@ class MastodonExtractor(BaseExtractor):
 """
 
     def convert_status(self, status):
+        if status['reblog']:
+            r = status['reblog']
+            original_status = Status(
+                sid=r['id'],
+                date=r['created_at'].replace(tzinfo=None),
+                author=r['account']['username'],
+                author_avatar=r['account']['avatar'],
+                author_url=r['account']['url'],
+                content=r['content'],
+                url=r['url'],
+                extractor=self.name,
+            )
+        else:
+            original_status = False
+
         return Status(
             sid=status['id'],
             date=status['created_at'].replace(tzinfo=None),
             author=status['account']['username'],
             author_avatar=status['account']['avatar'],
+            author_url=status['account']['url'],
             content=status['content'],
             url=status['url'],
+            original_status=original_status,
             extractor=self.name,
         )

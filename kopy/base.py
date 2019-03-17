@@ -33,15 +33,28 @@ class BaseExtractor:
 
 class Status:
 
-    def __init__(self, sid, date, author, author_avatar,
-        content, url, extractor):
+    def __init__(self, sid, date,
+            author, author_avatar, author_url,
+            content, url, extractor, original_status=False):
         self.sid = sid
         self.date = date
         self.author = author
         self.author_avatar = author_avatar
+        self.author_url = author_url
         self.content = content
         self.url = url
         self.extractor = extractor
+        self.original_status = original_status
+
+        self.is_r = bool(self.original_status)
+        self.r_author = self.original_status.author if self.original_status \
+                        else self.author
+        self.r_author_avatar = self.original_status.author_avatar if self.original_status \
+                               else self.author_avatar
+        self.r_author_url = self.original_status.author_url if self.original_status \
+                            else self.author_url
+        self.r_content = self.original_status.content if self.original_status \
+                         else self.content
 
     def __lt__(self, other):
         return self.date < other.date
