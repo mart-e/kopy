@@ -5,7 +5,7 @@ interface.
 
 **Still very early stage, lot of missing features, mostly for testing**
 
-![Kopy-screenshot](https://user-images.githubusercontent.com/564822/54491968-e1c2b500-48c2-11e9-9d3f-beb24467734e.png)
+![Kopy-screenshot](https://www.odoo.com/r/3mI)
 
 ## Dependencies
 
