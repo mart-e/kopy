@@ -22,8 +22,9 @@ class TwitterExtractor(BaseExtractor):
 </li>
 """
     def convert_status(self, status):
-        def replace_urls(entry):
+        def text_prettify(entry):
             text = entry.full_text
+            text = text.replace('\n', '<br/>')
             for entity in entry.entities['urls']:
                 text = text.replace(
                     entity['url'],
@@ -36,11 +37,17 @@ class TwitterExtractor(BaseExtractor):
                     f"<a href='{entity['expanded_url']}' rel='nofollow noopener'" \
                     f" target='_blank'>{entity['display_url']}</a>"
                 )
+            for entity in entry.entities['user_mentions']:
+                text = text.replace(
+                    f"@{entity['screen_name']}",
+                    f"<a href='https://twitter.com/{entity['screen_name']}' rel='nofollow noopener'" \
+                    f" target='_blank'>@{entity['screen_name']}</a>"
+                )
             return text
 
         if hasattr(status, 'retweeted_status'):
             r = status.retweeted_status
-            full_text = replace_urls(r)
+            full_text = text_prettify(r)
 
             retweeted_status = Status(
                 sid=r.id,
@@ -55,7 +62,7 @@ class TwitterExtractor(BaseExtractor):
         else:
             retweeted_status = False
 
-        full_text = replace_urls(status)
+        full_text = text_prettify(status)
         return Status(
             sid=status.id,
             date=status.created_at,
