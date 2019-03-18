@@ -24,8 +24,10 @@ class MastodonExtractor(BaseExtractor):
 """
 
     def convert_status(self, status):
+        url = status['url']
         if status['reblog']:
             r = status['reblog']
+            url = r['url']
             original_status = Status(
                 sid=r['id'],
                 date=r['created_at'].replace(tzinfo=None),
@@ -33,7 +35,7 @@ class MastodonExtractor(BaseExtractor):
                 author_avatar=r['account']['avatar'],
                 author_url=r['account']['url'],
                 content=r['content'],
-                url=r['url'],
+                url=url,
                 extractor=self.name,
             )
         else:
@@ -46,7 +48,7 @@ class MastodonExtractor(BaseExtractor):
             author_avatar=status['account']['avatar'],
             author_url=status['account']['url'],
             content=status['content'],
-            url=status['url'],
+            url=url,
             original_status=original_status,
             extractor=self.name,
         )
