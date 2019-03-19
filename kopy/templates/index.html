@@ -9,11 +9,11 @@
   <nav>
   </nav>
   <section class="content">
-    <header>
-    </header>
-      <ul>
+      <header>
+      </header>
+      <ul id="article-list">
       {% for status in manager.fetch(20) %}
-          <article>
+          <article id={{ status.sid }} data-date="{{ status.date }}">
             <header>
                 <img src="{{ status.r_author_avatar }}" class="avatar"/>
                 <strong>

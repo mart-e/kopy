@@ -27,10 +27,11 @@ def create_app():
         extractor.parse_config(site_config)
         manager.extractors.append(extractor)
 
-    @app.route('/home')
-    def home():
+    @app.route('/fetch')
+    @app.route('/fetch/<int:count>')
+    def fetch(count=10):
         for extractor in manager.extractors:
-            statuses = extractor.get_statuses()
+            statuses = extractor.get_statuses(count)
             for status in statuses:
                 manager.add(extractor.convert_status(status))
         return jsonify(manager.export_to_json())

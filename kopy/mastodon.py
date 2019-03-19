@@ -29,7 +29,7 @@ class MastodonExtractor(BaseExtractor):
             r = status['reblog']
             url = r['url']
             original_status = Status(
-                sid=r['id'],
+                sid=str(r['id']),
                 date=r['created_at'].replace(tzinfo=None),
                 author=r['account']['username'],
                 author_avatar=r['account']['avatar'],
@@ -42,7 +42,7 @@ class MastodonExtractor(BaseExtractor):
             original_status = False
 
         return Status(
-            sid=status['id'],
+            sid=str(status['id']),
             date=status['created_at'].replace(tzinfo=None),
             author=status['account']['username'],
             author_avatar=status['account']['avatar'],

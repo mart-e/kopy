@@ -50,7 +50,7 @@ class TwitterExtractor(BaseExtractor):
             full_text = text_prettify(r)
 
             retweeted_status = Status(
-                sid=r.id,
+                sid=str(r.id),
                 date=r.created_at,
                 author=r.user.name,
                 author_avatar=r.user.profile_image_url_https,
@@ -64,7 +64,7 @@ class TwitterExtractor(BaseExtractor):
 
         full_text = text_prettify(status)
         return Status(
-            sid=status.id,
+            sid=str(status.id),
             date=status.created_at,
             author=status.user.name,
             author_avatar=status.user.profile_image_url_https,
