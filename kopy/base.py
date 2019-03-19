@@ -59,6 +59,24 @@ class Status:
     def __lt__(self, other):
         return self.date < other.date
 
+    def export_to_json(self):
+        return {
+            'sid': self.sid,
+            'date': self.date,
+            'author': self.author,
+            'author_avatar': self.author_avatar,
+            'author_url': self.author_url,
+            'content': self.content,
+            'url': self.url,
+            'extractor': self.extractor,
+            'original_status': self.original_status and self.original_status.export_to_json(),
+            'is_r': self.is_r,
+            'r_author': self.r_author,
+            'r_author_avatar': self.r_author_avatar,
+            'r_author_url': self.r_author_url,
+            'r_content': self.r_content,
+        }
+
 class StatusManager:
 
     def __init__(self):
@@ -75,6 +93,14 @@ class StatusManager:
         res = []
         index = len(self.items) - 1 - offset
         while index > 0:
-            res.append( self.items[index] )
+            res.append(self.items[index])
             index -= 1
+        return res
+
+    def export_to_json(self):
+        res = []
+        for status in self.fetch():
+            res.append(
+                status.export_to_json()
+            )
         return res

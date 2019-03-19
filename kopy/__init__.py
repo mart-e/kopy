@@ -1,7 +1,7 @@
 # PoC for work with both mastodon and twitter
 
 import json
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template
 
 from .base import StatusManager
 
@@ -27,13 +27,16 @@ def create_app():
         extractor.parse_config(site_config)
         manager.extractors.append(extractor)
 
-
-    @app.route('/')
-    def main():
+    @app.route('/home')
+    def home():
         for extractor in manager.extractors:
             statuses = extractor.get_statuses()
             for status in statuses:
                 manager.add(extractor.convert_status(status))
+        return jsonify(manager.export_to_json())
+
+    @app.route('/')
+    def main():
         return render_template('index.html', manager=manager)
 
     return app
