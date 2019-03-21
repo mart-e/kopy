@@ -41,15 +41,53 @@ const render = (vNode) => {
     return renderElem(vNode);
 };
 
-const mount = ($node, $target) => {
-    $target.appendChild($node);
-    return $node;
+const attachEvents = ($node) => {
+    if ($node.children[2].children.length <= 1) {
+        return true;
+    }
+    const $link = $node.children[2].children[1].children[0];
+    if ($link.attributes['class'].value !== 'toggle-media') {
+        return true;
+    }
+
+    const $img = $node.children[2].children[1].children[1];
+    $link.addEventListener('click', (event) => {
+        event.preventDefault();
+        if ($img.style.display === 'none') {
+            $img.style.display = "block";
+            $link.text = "Hide media";
+        } else {
+            $img.style.display = "none";
+            $link.text = "Show media";
+        }
+    });
 };
 
+const patch = ($node, $target) => {
+    const nodeDate = $node.attributes['data-date'].value;
+    let inserted = false;
+    for (var child of $target.childNodes.entries()) {
+        if (!child[1].attributes) {
+            continue;
+        }
+        const childDate = child[1].attributes['data-date'].value;
+        if (!childDate) {
+            continue;
+        }
+        if (nodeDate > childDate) {
+            $target.insertBefore($node, child[1]);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        $target.appendChild($node);
+    }
+};
 
-document.addEventListener("DOMContentLoaded", function() {
+const fetchStatuses = (count) => {
 
-    fetch('/fetch/20', {
+    fetch('/fetch/' + count, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -63,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const vArticle = createElement('article', {
                         attrs: {
                             id: status['sid'],
-                            'data-date': status['date']
+                            'data-date': status['timestamp']
                         },
                         children: [
                             createElement('header', {
@@ -100,15 +138,19 @@ document.addEventListener("DOMContentLoaded", function() {
                             }),
                             createElement('footer', {
                                 children: [
-                                    `On {status['extractor']} `,
-                                    createElement('a', {
-                                        attrs: {
-                                            href: status['url'],
-                                            rel: 'nofollow noopener',
-                                            target: '_blank'
-                                        },
+                                    createElement('div', {
                                         children: [
-                                            status['date']
+                                            'On ' + status['extractor'] + ' ',
+                                            createElement('a', {
+                                                attrs: {
+                                                    href: status['url'],
+                                                    rel: 'nofollow noopener',
+                                                    target: '_blank'
+                                                },
+                                                children: [
+                                                    status['date']
+                                                ]
+                                            })
                                         ]
                                     })
                                 ]
@@ -123,25 +165,65 @@ document.addEventListener("DOMContentLoaded", function() {
                                     class: 'status_info'
                                 },
                                 children: [
-                                    "♺ by ",
+                                    " ♺ by ",
                                     createElement('a', {
                                         attrs: {
-                                            href: status['author_url']
+                                            href: status['author_url'],
+                                            rel: 'nofollow noopener',
+                                            target: '_blank'
                                         },
-                                        children: [
-                                            status['author']
-                                        ]
+                                        children: [status['author']]
                                     })
                                 ]
                             })
                         );
                     }
+
+                    if (status['medias'].length) {
+                        vArticle.children[2].children.push(
+                            createElement('div', {
+                                children: [
+                                    createElement('a', {
+                                        attrs: {
+                                            href: '#',
+                                            rel: 'nofollow noopener',
+                                            target: '_blank',
+                                            class: 'toggle-media',
+                                        },
+                                        children: ["Show medias"]
+                                    })
+                                ]
+                            })
+                        );
+                        status['medias'].forEach( media => {
+                            vArticle.children[2].children[1].children.push(
+                                createElement('img', {
+                                    attrs: {
+                                        style: 'display:none;max-width:400px;',
+                                        src: media[0]
+                                    }
+                                })
+                            );
+                        });
+                    }
                     const $article = render(vArticle);
-                    mount($article, $articleList);
+                    attachEvents($article);
+                    patch($article, $articleList);
                 }
             });
         });
     });
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const $refreshButton = document.getElementById('refresh-button');
+    $refreshButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        fetchStatuses(30);
+    });
+    fetchStatuses(20);
+
 
 });
 

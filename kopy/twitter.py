@@ -29,13 +29,15 @@ class TwitterExtractor(BaseExtractor):
                 text = text.replace(
                     entity['url'],
                     f"<a href='{entity['expanded_url']}' rel='nofollow noopener'" \
-                    f" target='_blank'>{entity['display_url']}</a>"
+                    f" target='_blank' title='{entity['expanded_url']}'>" \
+                    f"{entity['display_url']}</a>"
                 )
             for entity in entry.entities.get('media', []):
                 text = text.replace(
                     entity['url'],
                     f"<a href='{entity['expanded_url']}' rel='nofollow noopener'" \
-                    f" target='_blank'>{entity['display_url']}</a>"
+                    f" target='_blank' title='{entity['expanded_url']}'>" \
+                    f"{entity['display_url']}</a>"
                 )
             for entity in entry.entities['user_mentions']:
                 text = text.replace(
@@ -44,6 +46,16 @@ class TwitterExtractor(BaseExtractor):
                     f" target='_blank'>@{entity['screen_name']}</a>"
                 )
             return text
+
+        def extract_media(entry):
+            medias = []
+            for entity in entry.entities.get('media', []):
+                if entity.get('media_url_https', '').endswith('.png') or \
+                        entity.get('media_url_https', '').endswith('.jpg'):
+                    medias.append(
+                        (entity['media_url_https'], entity['url'])
+                    )
+            return medias
 
         if hasattr(status, 'retweeted_status'):
             r = status.retweeted_status
@@ -57,7 +69,8 @@ class TwitterExtractor(BaseExtractor):
                 author_url=f"https://twitter.com/{r.user.screen_name}",
                 content=full_text,
                 extractor=self.name,
-                url=f"https://twitter.com/{r.user.screen_name}/status/{r.id}"
+                url=f"https://twitter.com/{r.user.screen_name}/status/{r.id}",
+                medias=extract_media(r),
             )
         else:
             retweeted_status = False
@@ -73,4 +86,5 @@ class TwitterExtractor(BaseExtractor):
             url=f"https://twitter.com/{status.user.screen_name}/status/{status.id}",
             original_status=retweeted_status,
             extractor=self.name,
+            medias=extract_media(status),
         )

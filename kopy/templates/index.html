@@ -7,36 +7,10 @@
 </head>
 <body>
   <nav>
+      <a href="#" id="refresh-button">♺</a>
   </nav>
-  <section class="content">
-      <header>
-      </header>
-      <ul id="article-list">
-      {% for status in manager.fetch(20) %}
-          <article id={{ status.sid }} data-date="{{ status.date }}">
-            <header>
-                <img src="{{ status.r_author_avatar }}" class="avatar"/>
-                <strong>
-                  <a href="{{ status.r_author_url }}">{{ status.r_author }}</a>
-                </strong>
-                {% if status.is_r %}
-                  <span class="status_info">
-                    ♺ by <a href="{{ status.author_url }}">{{ status.author}}</a>
-                  </span>
-                {% endif %}
-            </header>
-            <div class="content">
-              {{ status.r_content|safe }}
-            </div>
-            <footer>
-                On {{ status.extractor }} -
-                <a href="{{ status.url }}" rel="nofollow noopener" target="_blank">
-                  {{ status.date }}
-                </a>
-            </footer>
-          </article>
-      {% endfor %}
-      </ul>
+  <section id="article-list">
+
   </section>
 </body>
 </html>

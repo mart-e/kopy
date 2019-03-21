@@ -35,9 +35,11 @@ class Status:
 
     def __init__(self, sid, date,
             author, author_avatar, author_url,
-            content, url, extractor, original_status=False):
+            content, url, extractor, medias=False,
+            original_status=False):
         self.sid = sid
         self.date = date
+        self.timestamp = int(date.timestamp())
         self.author = author
         self.author_avatar = author_avatar
         self.author_url = author_url
@@ -56,6 +58,8 @@ class Status:
         self.r_content = self.original_status.content if self.original_status \
                          else self.content
 
+        self.medias = medias or []
+
     def __lt__(self, other):
         return self.date < other.date
 
@@ -63,6 +67,7 @@ class Status:
         return {
             'sid': self.sid,
             'date': self.date,
+            'timestamp': self.timestamp,
             'author': self.author,
             'author_avatar': self.author_avatar,
             'author_url': self.author_url,
@@ -75,6 +80,7 @@ class Status:
             'r_author_avatar': self.r_author_avatar,
             'r_author_url': self.r_author_url,
             'r_content': self.r_content,
+            'medias': self.medias,
         }
 
 class StatusManager:
