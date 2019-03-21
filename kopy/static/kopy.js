@@ -197,11 +197,20 @@ const fetchStatuses = (count) => {
                         );
                         status['medias'].forEach( media => {
                             vArticle.children[2].children[1].children.push(
-                                createElement('img', {
+                                createElement('a', {
                                     attrs: {
-                                        style: 'display:none;max-width:400px;',
-                                        src: media[0]
-                                    }
+                                        style: 'display:none;',
+                                        href: media[1],
+                                        rel: 'nofollow noopener',
+                                        target: '_blank'
+                                    },
+                                    children: [
+                                        createElement('img', {
+                                            attrs: {
+                                                src: media[0]
+                                            }
+                                        })
+                                    ]
                                 })
                             );
                         });

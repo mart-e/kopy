@@ -1,5 +1,9 @@
+import logging
+
 from mastodon import Mastodon
 from .base import BaseExtractor, Status
+
+logger = logging.getLogger(__name__)
 
 
 class MastodonExtractor(BaseExtractor):
@@ -24,6 +28,18 @@ class MastodonExtractor(BaseExtractor):
 """
 
     def convert_status(self, status):
+
+        def extract_media(entry):
+            medias = []
+            for entity in entry['media_attachments']:
+                if entity['type'] == 'image':
+                    medias.append(
+                        (entity['preview_url'], entity['url'])
+                    )
+                else:
+                    logger.warning(f"Ignore media type {entity['type']}")
+            return medias
+
         url = status['url']
         if status['reblog']:
             r = status['reblog']
@@ -37,6 +53,7 @@ class MastodonExtractor(BaseExtractor):
                 content=r['content'],
                 url=url,
                 extractor=self.name,
+                medias=extract_media(r),
             )
         else:
             original_status = False
@@ -51,4 +68,5 @@ class MastodonExtractor(BaseExtractor):
             url=url,
             original_status=original_status,
             extractor=self.name,
+            medias=(original_status and original_status.medias or extract_media(status)),
         )

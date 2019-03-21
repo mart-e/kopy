@@ -2,9 +2,16 @@ body {
     font-family: 'Georgia', serif;
     color: #000;
     padding: 1rem;
+    font-size: 17px;
+}
+
+section#article-list {
     max-width: 640px;
     margin: auto;
-    font-size: 17px;
+}
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 a {

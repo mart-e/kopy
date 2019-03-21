@@ -1,5 +1,8 @@
+import logging
 import tweepy
 from .base import BaseExtractor, Status
+
+logger = logging.getLogger(__name__)
 
 
 class TwitterExtractor(BaseExtractor):
@@ -50,11 +53,12 @@ class TwitterExtractor(BaseExtractor):
         def extract_media(entry):
             medias = []
             for entity in entry.entities.get('media', []):
-                if entity.get('media_url_https', '').endswith('.png') or \
-                        entity.get('media_url_https', '').endswith('.jpg'):
+                if entity['type'] == 'photo':
                     medias.append(
                         (entity['media_url_https'], entity['url'])
                     )
+                else:
+                    logger.warning(f"Ignore media type {entity['type']}")
             return medias
 
         if hasattr(status, 'retweeted_status'):
