@@ -12,6 +12,12 @@ section#article-list {
 img {
     max-width: 100%;
     height: auto;
+    max-height: 400px;
+}
+video {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
 }
 
 a {

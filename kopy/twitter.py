@@ -54,11 +54,19 @@ class TwitterExtractor(BaseExtractor):
             medias = []
             for entity in entry.entities.get('media', []):
                 if entity['type'] == 'photo':
-                    medias.append(
-                        (entity['media_url_https'], entity['url'])
-                    )
+                    medias.append({
+                        'type': 'image',
+                        'inline': entity['media_url_https'],
+                        'url': entity['url']
+                    })
+                elif entity['type'] == 'video':
+                    medias.append({
+                        'type': 'video',
+                        'inline': entity['url'],
+                        'url': entity['url']
+                    })
                 else:
-                    logger.warning(f"Ignore media type {entity['type']}")
+                    logger.warning(f"Ignore twitter media type {entity['type']}")
             return medias
 
         if hasattr(status, 'retweeted_status'):

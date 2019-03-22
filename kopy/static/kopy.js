@@ -196,23 +196,34 @@ const fetchStatuses = (count) => {
                             })
                         );
                         status['medias'].forEach( media => {
-                            vArticle.children[2].children[1].children.push(
-                                createElement('a', {
-                                    attrs: {
-                                        style: 'display:none;',
-                                        href: media[1],
-                                        rel: 'nofollow noopener',
-                                        target: '_blank'
-                                    },
-                                    children: [
-                                        createElement('img', {
-                                            attrs: {
-                                                src: media[0]
-                                            }
-                                        })
-                                    ]
-                                })
-                            );
+                            const $mediaLink = createElement('a', {
+                                attrs: {
+                                    style: 'display:none;',
+                                    href: media['url'],
+                                    rel: 'nofollow noopener',
+                                    target: '_blank'
+                                },
+                                children: []
+                            });
+                            if (media['type'] == 'image') {
+                                $mediaLink.children.push(
+                                    createElement('img', {
+                                        attrs: {
+                                            src: media['inline']
+                                        }
+                                    })
+                                );
+                            } else if (media['type'] == 'video') {
+                                $mediaLink.children.push(
+                                    createElement('video', {
+                                        attrs: {
+                                            src: media['inline'],
+                                            controls: ''
+                                        }
+                                    })
+                                );
+                            }
+                            vArticle.children[2].children[1].children.push($mediaLink);
                         });
                     }
                     const $article = render(vArticle);

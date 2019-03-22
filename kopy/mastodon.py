@@ -33,11 +33,19 @@ class MastodonExtractor(BaseExtractor):
             medias = []
             for entity in entry['media_attachments']:
                 if entity['type'] == 'image':
-                    medias.append(
-                        (entity['preview_url'], entity['url'])
-                    )
+                    medias.append({
+                        'type': 'image',
+                        'inline': entity['preview_url'],
+                        'url': entity['url']
+                    })
+                elif entity['type'] == 'video':
+                    medias.append({
+                        'type': entity['type'],
+                        'inline': entity['url'],
+                        'url': entity['url']
+                    })
                 else:
-                    logger.warning(f"Ignore media type {entity['type']}")
+                    logger.warning(f"Ignore mastodon media type {entity['type']}")
             return medias
 
         url = status['url']
