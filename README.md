@@ -7,6 +7,12 @@ interface.
 
 ![Kopy-screenshot](https://www.odoo.com/r/3mI)
 
+## Features/Goals
+
+- Unified interface for both stream
+- Minimalist (light, fast, no disturbance, media hidden by default)
+- Filter and post on all or selected stream
+
 ## Dependencies
 
 - [flask](http://flask.pocoo.org/) for the web app
