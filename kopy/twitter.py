@@ -89,6 +89,8 @@ class TwitterExtractor(BaseExtractor):
                 content=full_text,
                 extractor=self.name,
                 url=f"https://twitter.com/{r.user.screen_name}/status/{r.id}",
+                reblog_count=r.retweet_count,
+                favorite_count=r.favorite_count,
                 medias=extract_media(r),
             )
         else:
@@ -103,7 +105,9 @@ class TwitterExtractor(BaseExtractor):
             author_url=f"https://twitter.com/{status.user.screen_name}",
             content=full_text,
             url=f"https://twitter.com/{status.user.screen_name}/status/{status.id}",
-            original_status=retweeted_status,
             extractor=self.name,
+            reblog_count=status.retweet_count,
+            favorite_count=status.favorite_count,
             medias=extract_media(status),
+            original_status=retweeted_status,
         )

@@ -43,6 +43,8 @@ class Status:
         content,
         url,
         extractor,
+        reblog_count=0,
+        favorite_count=0,
         medias=False,
         original_status=False,
     ):
@@ -55,6 +57,8 @@ class Status:
         self.content = content
         self.url = url
         self.extractor = extractor
+        self.reblog_count = reblog_count
+        self.favorite_count = favorite_count
         self.original_status = original_status
 
         self.is_r = bool(self.original_status)
@@ -96,6 +100,8 @@ class Status:
             "r_author_avatar": self.r_author_avatar,
             "r_author_url": self.r_author_url,
             "r_content": self.r_content,
+            "reblog_count": self.reblog_count,
+            "favorite_count": self.favorite_count,
             "medias": self.medias,
         }
 
