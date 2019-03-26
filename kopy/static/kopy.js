@@ -242,6 +242,12 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         fetchStatuses(30);
     });
+    document.addEventListener('keydown', (event) => {
+        const keyName = event.key;
+        if (keyName == 'Home') {
+            fetchStatuses(30);
+        }
+    });
     fetchStatuses(20);
 
 
