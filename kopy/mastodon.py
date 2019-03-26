@@ -38,9 +38,9 @@ class MastodonExtractor(BaseExtractor):
                         'inline': entity['preview_url'],
                         'url': entity['url']
                     })
-                elif entity['type'] == 'video':
+                elif entity['type'] in ('video', 'gifv'):
                     medias.append({
-                        'type': entity['type'],
+                        'type': 'video',
                         'inline': entity['url'],
                         'url': entity['url']
                     })
