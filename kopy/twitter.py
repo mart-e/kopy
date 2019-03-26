@@ -28,6 +28,13 @@ class TwitterExtractor(BaseExtractor):
         def text_prettify(entry):
             text = entry.full_text
             text = text.replace('\n', '<br/>')
+            for entity in entry.entities['hashtags']:
+                # TODO use entity['indices'] ?
+                text = text.replace(
+                    f"#{entity['text']}",
+                    f"<a href='https://twitter.com/hashtag/{entity['text']}' rel='nofollow noopener'" \
+                    f" target='_blank'>#{entity['text']}</a>"
+                )
             for entity in entry.entities['urls']:
                 text = text.replace(
                     entity['url'],
