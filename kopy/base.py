@@ -1,7 +1,7 @@
 import bisect
 
-class BaseExtractor:
 
+class BaseExtractor:
     def __init__(self, name):
         self.name = name
 
@@ -31,12 +31,21 @@ class BaseExtractor:
         """
         raise NotImplementedError
 
-class Status:
 
-    def __init__(self, sid, date,
-            author, author_avatar, author_url,
-            content, url, extractor, medias=False,
-            original_status=False):
+class Status:
+    def __init__(
+        self,
+        sid,
+        date,
+        author,
+        author_avatar,
+        author_url,
+        content,
+        url,
+        extractor,
+        medias=False,
+        original_status=False,
+    ):
         self.sid = sid
         self.date = date
         self.timestamp = int(date.timestamp())
@@ -49,14 +58,20 @@ class Status:
         self.original_status = original_status
 
         self.is_r = bool(self.original_status)
-        self.r_author = self.original_status.author if self.original_status \
-                        else self.author
-        self.r_author_avatar = self.original_status.author_avatar if self.original_status \
-                               else self.author_avatar
-        self.r_author_url = self.original_status.author_url if self.original_status \
-                            else self.author_url
-        self.r_content = self.original_status.content if self.original_status \
-                         else self.content
+        self.r_author = (
+            self.original_status.author if self.original_status else self.author
+        )
+        self.r_author_avatar = (
+            self.original_status.author_avatar
+            if self.original_status
+            else self.author_avatar
+        )
+        self.r_author_url = (
+            self.original_status.author_url if self.original_status else self.author_url
+        )
+        self.r_content = (
+            self.original_status.content if self.original_status else self.content
+        )
 
         self.medias = medias or []
 
@@ -65,26 +80,27 @@ class Status:
 
     def export_to_json(self):
         return {
-            'sid': self.sid,
-            'date': self.date,
-            'timestamp': self.timestamp,
-            'author': self.author,
-            'author_avatar': self.author_avatar,
-            'author_url': self.author_url,
-            'content': self.content,
-            'url': self.url,
-            'extractor': self.extractor,
-            'original_status': self.original_status and self.original_status.export_to_json(),
-            'is_r': self.is_r,
-            'r_author': self.r_author,
-            'r_author_avatar': self.r_author_avatar,
-            'r_author_url': self.r_author_url,
-            'r_content': self.r_content,
-            'medias': self.medias,
+            "sid": self.sid,
+            "date": self.date,
+            "timestamp": self.timestamp,
+            "author": self.author,
+            "author_avatar": self.author_avatar,
+            "author_url": self.author_url,
+            "content": self.content,
+            "url": self.url,
+            "extractor": self.extractor,
+            "original_status": self.original_status
+            and self.original_status.export_to_json(),
+            "is_r": self.is_r,
+            "r_author": self.r_author,
+            "r_author_avatar": self.r_author_avatar,
+            "r_author_url": self.r_author_url,
+            "r_content": self.r_content,
+            "medias": self.medias,
         }
 
-class StatusManager:
 
+class StatusManager:
     def __init__(self):
         self.items = []
         self.extractors = []
@@ -92,7 +108,7 @@ class StatusManager:
     def add(self, status):
         """ Insert a status while maintaining the order """
         index = bisect.bisect(self.items, status)
-        if index == 0 or self.items[index-1].sid != status.sid:
+        if index == 0 or self.items[index - 1].sid != status.sid:
             self.items.insert(index, status)
 
     def fetch(self, count=10, offset=0):
@@ -106,7 +122,5 @@ class StatusManager:
     def export_to_json(self):
         res = []
         for status in self.fetch():
-            res.append(
-                status.export_to_json()
-            )
+            res.append(status.export_to_json())
         return res
