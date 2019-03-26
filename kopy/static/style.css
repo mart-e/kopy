@@ -26,6 +26,12 @@ a {
 a:hover {
     color: #6D4100;
 }
+a > span.ellipsis::after {
+    content: "…";
+}
+a > span.invisible {
+    display: none;
+}
 
 nav a#refresh-button {
     position: fixed;
