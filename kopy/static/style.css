@@ -12,12 +12,12 @@ section#article-list {
 img {
     max-width: 100%;
     height: auto;
-    max-height: 400px;
+    max-height: 300px;
 }
 video {
     max-width: 100%;
     height: auto;
-    max-height: 400px;
+    max-height: 300px;
 }
 
 a {
@@ -56,6 +56,12 @@ article header img.avatar {
     max-height: 48px;
     position: absolute;
     left: 15px;
+}
+article footer div.counters {
+    position: absolute;
+    left: 15px;
+    bottom: 13px;
+    font-size: 0.7em;
 }
 
 article header .status_info a {

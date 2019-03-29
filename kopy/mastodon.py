@@ -61,6 +61,9 @@ class MastodonExtractor(BaseExtractor):
                 content=r["content"],
                 url=url,
                 extractor=self.name,
+                reblog_count=r['reblogs_count'],
+                favorite_count=r['favourites_count'],
+                reply_count=r['replies_count'],
                 medias=extract_media(r),
             )
         else:
@@ -76,6 +79,9 @@ class MastodonExtractor(BaseExtractor):
             url=url,
             original_status=original_status,
             extractor=self.name,
+            reblog_count=status['reblogs_count'],
+            favorite_count=status['favourites_count'],
+            reply_count=status['replies_count'],
             medias=(
                 original_status and original_status.medias or extract_media(status)
             ),

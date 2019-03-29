@@ -43,6 +43,7 @@ class Status:
         content,
         url,
         extractor,
+        reply_count=0,
         reblog_count=0,
         favorite_count=0,
         medias=False,
@@ -57,6 +58,7 @@ class Status:
         self.content = content
         self.url = url
         self.extractor = extractor
+        self.reply_count = reply_count
         self.reblog_count = reblog_count
         self.favorite_count = favorite_count
         self.original_status = original_status
@@ -77,7 +79,9 @@ class Status:
             self.original_status.content if self.original_status else self.content
         )
 
-        self.medias = medias or []
+        self.medias = (
+            self.original_status.medias if self.original_status else medias or []
+        )
 
     def __lt__(self, other):
         return self.date < other.date
@@ -94,12 +98,13 @@ class Status:
             "url": self.url,
             "extractor": self.extractor,
             "original_status": self.original_status
-            and self.original_status.export_to_json(),
+                               and self.original_status.export_to_json(),
             "is_r": self.is_r,
             "r_author": self.r_author,
             "r_author_avatar": self.r_author_avatar,
             "r_author_url": self.r_author_url,
             "r_content": self.r_content,
+            "reply_count": self.reply_count,
             "reblog_count": self.reblog_count,
             "favorite_count": self.favorite_count,
             "medias": self.medias,

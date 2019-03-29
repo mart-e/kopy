@@ -42,15 +42,15 @@ const render = (vNode) => {
 };
 
 const attachEvents = ($node) => {
-    if ($node.children[2].children.length <= 1) {
+    if ($node.children[2].children.length <= 2) {
         return true;
     }
-    const $link = $node.children[2].children[1].children[0];
+    const $link = $node.children[2].children[2].children[0];
     if ($link.attributes['class'].value !== 'toggle-media') {
         return true;
     }
 
-    const $img = $node.children[2].children[1].children[1];
+    const $img = $node.children[2].children[2].children[1];
     $link.addEventListener('click', (event) => {
         event.preventDefault();
         if ($img.style.display === 'none') {
@@ -139,6 +139,12 @@ const fetchStatuses = (count) => {
                             createElement('footer', {
                                 children: [
                                     createElement('div', {
+                                        attrs: {class: 'counters'},
+                                        children: [
+                                            status['reblog_count'] + ' ♺ ' + status['favorite_count'] + ' ☆',
+                                        ]
+                                    }),
+                                    createElement('div', {
                                         children: [
                                             'On ' + status['extractor'] + ' ',
                                             createElement('a', {
@@ -186,8 +192,6 @@ const fetchStatuses = (count) => {
                                     createElement('a', {
                                         attrs: {
                                             href: '#',
-                                            rel: 'nofollow noopener',
-                                            target: '_blank',
                                             class: 'toggle-media',
                                         },
                                         children: ["Show medias"]
@@ -223,7 +227,7 @@ const fetchStatuses = (count) => {
                                     })
                                 );
                             }
-                            vArticle.children[2].children[1].children.push($mediaLink);
+                            vArticle.children[2].children[2].children.push($mediaLink);
                         });
                     }
                     const $article = render(vArticle);
