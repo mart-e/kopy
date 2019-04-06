@@ -45,6 +45,7 @@ article {
     position: relative;
     padding: 10px 10px 10px 75px;
     overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 article header .status_info {
