@@ -73,7 +73,7 @@ class MastodonExtractor(BaseExtractor):
             sid=str(status["id"]),
             date=status["created_at"].replace(tzinfo=None),
             author=status["account"]["username"],
-            author_avatar=status["account"]["avatar"],
+            author_avatar=status["account"].get("avatar_static") or status["account"]["avatar"],
             author_url=status["account"]["url"],
             content=status["content"],
             url=url,
