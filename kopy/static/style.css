@@ -22,9 +22,10 @@ video {
 
 a {
     color: #004B6B;
+    text-decoration: none;
 }
 a:hover {
-    color: #6D4100;
+    color: #00acc1;
 }
 a > span.ellipsis::after {
     content: "…";
@@ -43,6 +44,7 @@ article {
     border: 1px #eee solid;
     position: relative;
     padding: 10px 10px 10px 75px;
+    overflow-wrap: break-word;
 }
 
 article header .status_info {
