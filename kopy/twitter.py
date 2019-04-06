@@ -29,7 +29,6 @@ class TwitterExtractor(BaseExtractor):
             text = entry.full_text
             text = text.replace("\n", "<br/>")
             for entity in entry.entities["hashtags"]:
-                # TODO use entity['indices'] ?
                 text = text.replace(
                     f"#{entity['text']}",
                     f"<a href='https://twitter.com/hashtag/{entity['text']}' rel='nofollow noopener'"
@@ -50,8 +49,9 @@ class TwitterExtractor(BaseExtractor):
                     f"{entity['display_url']}</a>",
                 )
             for entity in entry.entities["user_mentions"]:
+                source = entry.full_text[entity['indices'][0]:entity['indices'][1]]
                 text = text.replace(
-                    f"@{entity['screen_name']}",
+                    source,
                     f"<a href='https://twitter.com/{entity['screen_name']}' rel='nofollow noopener'"
                     f" target='_blank'>@{entity['screen_name']}</a>",
                 )
