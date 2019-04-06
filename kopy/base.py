@@ -38,6 +38,7 @@ class Status:
         sid,
         date,
         author,
+        author_title,
         author_avatar,
         author_url,
         content,
@@ -53,6 +54,7 @@ class Status:
         self.date = date
         self.timestamp = int(date.timestamp())
         self.author = author
+        self.author_title = author_title
         self.author_avatar = author_avatar
         self.author_url = author_url
         self.content = content
@@ -66,6 +68,11 @@ class Status:
         self.is_r = bool(self.original_status)
         self.r_author = (
             self.original_status.author if self.original_status else self.author
+        )
+        self.r_author_title = (
+            self.original_status.author_title
+            if self.original_status
+            else self.author_title
         )
         self.r_author_avatar = (
             self.original_status.author_avatar
@@ -92,6 +99,7 @@ class Status:
             "date": self.date,
             "timestamp": self.timestamp,
             "author": self.author,
+            "author_title": self.author_title,
             "author_avatar": self.author_avatar,
             "author_url": self.author_url,
             "content": self.content,
@@ -101,6 +109,7 @@ class Status:
                                and self.original_status.export_to_json(),
             "is_r": self.is_r,
             "r_author": self.r_author,
+            "r_author_title": self.r_author_title,
             "r_author_avatar": self.r_author_avatar,
             "r_author_url": self.r_author_url,
             "r_content": self.r_content,

@@ -118,7 +118,8 @@ const fetchStatuses = (count) => {
                                                 attrs: {
                                                     href: status['r_author_url'],
                                                     rel: 'nofollow noopener',
-                                                    target: '_blank'
+                                                    target: '_blank',
+                                                    title: status['r_author_title']
                                                 },
                                                 children: [
                                                     status['r_author']
