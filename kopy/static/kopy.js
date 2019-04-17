@@ -25,20 +25,11 @@ const renderElem = ({ tagName, attrs, children}) => {
         if (typeof child === 'string') {
             $el.innerHTML = child;
         } else {
-            $el.appendChild(render(child));
+            $el.appendChild(renderElem(child));
         }
     }
 
     return $el;
-};
-
-const render = (vNode) => {
-    // if (typeof vNode === 'string') {
-    //     return document.createTextNode(vNode);
-    // }
-
-    // we assume everything else to be a virtual element
-    return renderElem(vNode);
 };
 
 const attachEvents = ($node) => {
@@ -50,16 +41,19 @@ const attachEvents = ($node) => {
         return true;
     }
 
-    const $img = $node.children[2].children[2].children[1];
+    // first is the link then the medias
+    const $imgs = Array.from($node.children[2].children[2].children).slice(1);
     $link.addEventListener('click', (event) => {
         event.preventDefault();
-        if ($img.style.display === 'none') {
-            $img.style.display = "block";
-            $link.text = "Hide media";
-        } else {
-            $img.style.display = "none";
-            $link.text = "Show media";
-        }
+        $imgs.forEach( $img => {
+            if ($img.style.display === 'none') {
+                $img.style.display = "block";
+                $link.text = "Hide media";
+            } else {
+                $img.style.display = "none";
+                $link.text = "Show media";
+            }
+        });
     });
 };
 
@@ -231,7 +225,7 @@ const fetchStatuses = (count) => {
                             vArticle.children[2].children[2].children.push($mediaLink);
                         });
                     }
-                    const $article = render(vArticle);
+                    const $article = renderElem(vArticle);
                     attachEvents($article);
                     patch($article, $articleList);
                 }

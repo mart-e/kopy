@@ -59,15 +59,18 @@ class TwitterExtractor(BaseExtractor):
 
         def extract_media(entry):
             medias = []
-            for entity in entry.entities.get("media", []):
+            entities = entry.entities.get("media", [])
+            if hasattr(entry, 'extended_entities'):
+                entities.extend(entry.extended_entities.get("media", []))
+            for entity in entities:
                 if entity["type"] == "photo":
-                    medias.append(
-                        {
-                            "type": "image",
-                            "inline": entity["media_url_https"],
-                            "url": entity["url"],
-                        }
-                    )
+                    media = {
+                        "type": "image",
+                        "inline": entity["media_url_https"],
+                        "url": entity["url"],
+                    }
+                    if media not in medias:
+                        medias.append(media)
                 elif entity["type"] == "video":
                     medias.append(
                         {"type": "video", "inline": entity["url"], "url": entity["url"]}
