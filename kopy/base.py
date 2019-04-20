@@ -33,91 +33,78 @@ class BaseExtractor:
 
 
 class Status:
-    def __init__(
-        self,
-        sid,
-        date,
-        author,
-        author_title,
-        author_avatar,
-        author_url,
-        content,
-        url,
-        extractor,
-        reply_count=0,
-        reblog_count=0,
-        favorite_count=0,
-        medias=False,
-        original_status=False,
-    ):
-        self.sid = sid
-        self.date = date
-        self.timestamp = int(date.timestamp())
-        self.author = author
-        self.author_title = author_title
-        self.author_avatar = author_avatar
-        self.author_url = author_url
-        self.content = content
-        self.url = url
-        self.extractor = extractor
-        self.reply_count = reply_count
-        self.reblog_count = reblog_count
-        self.favorite_count = favorite_count
-        self.original_status = original_status
+    def __init__(self, **kwargs):
+        prop_defaults = {
+            "sid": None,
+            "date": None,
+            "author": "",
+            "author_title": "",
+            "author_avatar": "",
+            "author_url": "",
+            "content": "",
+            "url": "",
+            "extractor": "base",
+            "reply_count": 0,
+            "reblog_count": 0,
+            "favorite_count": 0,
+            "medias": [],
+            "original_status": None,
+        }
+
+        for (prop, default) in prop_defaults.items():
+            setattr(self, prop, kwargs.get(prop, default))
 
         self.is_r = bool(self.original_status)
-        self.r_author = (
-            self.original_status.author if self.original_status else self.author
-        )
-        self.r_author_title = (
-            self.original_status.author_title
-            if self.original_status
-            else self.author_title
-        )
-        self.r_author_avatar = (
-            self.original_status.author_avatar
-            if self.original_status
-            else self.author_avatar
-        )
-        self.r_author_url = (
-            self.original_status.author_url if self.original_status else self.author_url
-        )
-        self.r_content = (
-            self.original_status.content if self.original_status else self.content
-        )
+        r_proprieties = [
+            "author",
+            "author_avatar",
+            "author_avatar",
+            "author_title",
+            "author_url",
+            "content",
+        ]
+        for prop in r_proprieties:
+            if self.is_r:
+                setattr(self, "r_" + prop, getattr(self.original_status, prop))
+            else:
+                setattr(self, "r_" + prop, getattr(self, prop))
+        if self.is_r:
+            self.medias = self.original_status.medias
 
-        self.medias = (
-            self.original_status.medias if self.original_status else medias or []
-        )
+        if self.date:
+            self.timestamp = int(self.date.timestamp())
 
     def __lt__(self, other):
         return self.date < other.date
 
     def export_to_json(self):
-        return {
-            "sid": self.sid,
-            "date": self.date,
-            "timestamp": self.timestamp,
-            "author": self.author,
-            "author_title": self.author_title,
-            "author_avatar": self.author_avatar,
-            "author_url": self.author_url,
-            "content": self.content,
-            "url": self.url,
-            "extractor": self.extractor,
-            "original_status": self.original_status
-                               and self.original_status.export_to_json(),
-            "is_r": self.is_r,
-            "r_author": self.r_author,
-            "r_author_title": self.r_author_title,
-            "r_author_avatar": self.r_author_avatar,
-            "r_author_url": self.r_author_url,
-            "r_content": self.r_content,
-            "reply_count": self.reply_count,
-            "reblog_count": self.reblog_count,
-            "favorite_count": self.favorite_count,
-            "medias": self.medias,
-        }
+        to_export = [
+            "sid",
+            "date",
+            "timestamp",
+            "author",
+            "author_title",
+            "author_avatar",
+            "author_url",
+            "content",
+            "url",
+            "extractor",
+            "is_r",
+            "r_author",
+            "r_author_title",
+            "r_author_avatar",
+            "r_author_url",
+            "r_content",
+            "reply_count",
+            "reblog_count",
+            "favorite_count",
+            "medias",
+        ]
+        res = {key: getattr(self, key) for key in to_export}
+        res["original_status"] = (
+            self.original_status and self.original_status.export_to_json()
+        )
+        return res
 
 
 class StatusManager:
