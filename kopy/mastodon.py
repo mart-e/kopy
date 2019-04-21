@@ -16,9 +16,11 @@ class MastodonExtractor(BaseExtractor):
         )
         return True
 
-    def get_statuses(self, count=10):
-        toots = self.api.timeline_home(limit=count)
-        return toots
+    def get_statuses(self, count=10, since=None):
+        return self.api.timeline(
+            timeline='home',
+            limit=count,
+            since_id=since and since.sid or None)
 
     def format_status(self, status):
         return f"""

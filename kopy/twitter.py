@@ -12,9 +12,11 @@ class TwitterExtractor(BaseExtractor):
         self.api = tweepy.API(auth)
         return True
 
-    def get_statuses(self, count=10):
-        public_tweets = self.api.home_timeline(count=count, tweet_mode="extended")
-        return public_tweets
+    def get_statuses(self, count=10, since=None):
+        return self.api.home_timeline(
+            count=count,
+            tweet_mode="extended",
+            max_id=since and since.sid or None)
 
     def format_status(self, status):
         return f"""

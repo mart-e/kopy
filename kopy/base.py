@@ -49,6 +49,7 @@ class Status:
             "favorite_count": 0,
             "medias": [],
             "original_status": None,
+            "blank": False,
         }
 
         for (prop, default) in prop_defaults.items():
