@@ -79,6 +79,143 @@ const patch = ($node, $target) => {
     }
 };
 
+const createVArticle = (status) => {
+    const vArticle = createElement('article', {
+        attrs: {
+            id: status['sid'],
+            'data-date': status['timestamp']
+        },
+        children: [
+            createElement('header', {
+                children: [
+                    createElement('img', {
+                        attrs: {
+                            src: status['r_author_avatar'],
+                            class: "avatar"
+                        }
+                    }),
+                    createElement('strong', {
+                        children: [
+                            createElement('a', {
+                                attrs: {
+                                    href: status['r_author_url'],
+                                    rel: 'nofollow noopener',
+                                    target: '_blank',
+                                    title: status['r_author_title']
+                                },
+                                children: [
+                                    status['r_author']
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            createElement('div', {
+                attrs: {
+                    class: 'content'
+                },
+                children: [
+                    status['r_content']
+                ]
+            }),
+            createElement('footer', {
+                children: [
+                    createElement('div', {
+                        attrs: {class: 'counters'},
+                        children: [
+                            status['reblog_count'] + ' ♺ ' + status['favorite_count'] + ' ☆',
+                        ]
+                    }),
+                    createElement('div', {
+                        children: [
+                            'On ' + status['extractor'] + ' ',
+                            createElement('a', {
+                                attrs: {
+                                    href: status['url'],
+                                    rel: 'nofollow noopener',
+                                    target: '_blank'
+                                },
+                                children: [
+                                    status['date']
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            })
+        ]
+    });
+
+    if (status['is_r']) {
+        vArticle.children[0].children[1].children.push(
+            createElement('span', {
+                attrs: {
+                    class: 'status_info'
+                },
+                children: [
+                    " ♺ by ",
+                    createElement('a', {
+                        attrs: {
+                            href: status['author_url'],
+                            rel: 'nofollow noopener',
+                            target: '_blank'
+                        },
+                        children: [status['author']]
+                    })
+                ]
+            })
+        );
+    }
+
+    if (status['medias'].length) {
+        vArticle.children[2].children.push(
+            createElement('div', {
+                children: [
+                    createElement('a', {
+                        attrs: {
+                            href: '#',
+                            class: 'toggle-media',
+                        },
+                        children: ["Show medias"]
+                    })
+                ]
+            })
+        );
+        status['medias'].forEach( media => {
+            const $mediaLink = createElement('a', {
+                attrs: {
+                    style: 'display:none;',
+                    href: media['url'],
+                    rel: 'nofollow noopener',
+                    target: '_blank'
+                },
+                children: []
+            });
+            if (media['type'] == 'image') {
+                $mediaLink.children.push(
+                    createElement('img', {
+                        attrs: {
+                            src: media['inline']
+                        }
+                    })
+                );
+            } else if (media['type'] == 'video') {
+                $mediaLink.children.push(
+                    createElement('video', {
+                        attrs: {
+                            src: media['inline'],
+                            controls: ''
+                        }
+                    })
+                );
+            }
+            vArticle.children[2].children[2].children.push($mediaLink);
+        });
+    }
+    return vArticle;
+};
+
 const fetchStatuses = (count) => {
 
     fetch('/fetch/' + count, {
@@ -92,142 +229,22 @@ const fetchStatuses = (count) => {
             statuses.forEach(status => {
                 const $statusDom = document.getElementById(status['sid']);
                 if (!$statusDom) {
-                    const vArticle = createElement('article', {
-                        attrs: {
-                            id: status['sid'],
-                            'data-date': status['timestamp']
-                        },
-                        children: [
-                            createElement('header', {
-                                children: [
-                                    createElement('img', {
-                                        attrs: {
-                                            src: status['r_author_avatar'],
-                                            class: "avatar"
-                                        }
-                                    }),
-                                    createElement('strong', {
-                                        children: [
-                                            createElement('a', {
-                                                attrs: {
-                                                    href: status['r_author_url'],
-                                                    rel: 'nofollow noopener',
-                                                    target: '_blank',
-                                                    title: status['r_author_title']
-                                                },
-                                                children: [
-                                                    status['r_author']
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            createElement('div', {
-                                attrs: {
-                                    class: 'content'
-                                },
-                                children: [
-                                    status['r_content']
-                                ]
-                            }),
-                            createElement('footer', {
-                                children: [
-                                    createElement('div', {
-                                        attrs: {class: 'counters'},
-                                        children: [
-                                            status['reblog_count'] + ' ♺ ' + status['favorite_count'] + ' ☆',
-                                        ]
-                                    }),
-                                    createElement('div', {
-                                        children: [
-                                            'On ' + status['extractor'] + ' ',
-                                            createElement('a', {
-                                                attrs: {
-                                                    href: status['url'],
-                                                    rel: 'nofollow noopener',
-                                                    target: '_blank'
-                                                },
-                                                children: [
-                                                    status['date']
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            })
-                        ]
-                    });
-
-                    if (status['is_r']) {
-                        vArticle.children[0].children[1].children.push(
-                            createElement('span', {
-                                attrs: {
-                                    class: 'status_info'
-                                },
-                                children: [
-                                    " ♺ by ",
-                                    createElement('a', {
-                                        attrs: {
-                                            href: status['author_url'],
-                                            rel: 'nofollow noopener',
-                                            target: '_blank'
-                                        },
-                                        children: [status['author']]
-                                    })
-                                ]
-                            })
-                        );
-                    }
-
-                    if (status['medias'].length) {
-                        vArticle.children[2].children.push(
-                            createElement('div', {
-                                children: [
-                                    createElement('a', {
-                                        attrs: {
-                                            href: '#',
-                                            class: 'toggle-media',
-                                        },
-                                        children: ["Show medias"]
-                                    })
-                                ]
-                            })
-                        );
-                        status['medias'].forEach( media => {
-                            const $mediaLink = createElement('a', {
-                                attrs: {
-                                    style: 'display:none;',
-                                    href: media['url'],
-                                    rel: 'nofollow noopener',
-                                    target: '_blank'
-                                },
-                                children: []
-                            });
-                            if (media['type'] == 'image') {
-                                $mediaLink.children.push(
-                                    createElement('img', {
-                                        attrs: {
-                                            src: media['inline']
-                                        }
-                                    })
-                                );
-                            } else if (media['type'] == 'video') {
-                                $mediaLink.children.push(
-                                    createElement('video', {
-                                        attrs: {
-                                            src: media['inline'],
-                                            controls: ''
-                                        }
-                                    })
-                                );
-                            }
-                            vArticle.children[2].children[2].children.push($mediaLink);
+                    if (status['blank']) {
+                        const vBlankArticle = createElement('article', {
+                            attrs: {
+                                id: status['sid'],
+                                'data-date': status['timestamp']
+                            },
+                            children: ["Load more"]
                         });
+                        const $article = renderElem(vBlankArticle);
+                        patch($article, $articleList);
+                    } else {
+                        const vArticle = createVArticle(status);
+                        const $article = renderElem(vArticle);
+                        attachEvents($article);
+                        patch($article, $articleList);
                     }
-                    const $article = renderElem(vArticle);
-                    attachEvents($article);
-                    patch($article, $articleList);
                 }
             });
         });

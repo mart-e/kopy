@@ -36,9 +36,7 @@ def create_app():
     @app.route("/fetch/<int:count>")
     def fetch(count=10):
         for extractor in manager.extractors:
-            statuses = extractor.get_statuses(count)
-            for status in statuses:
-                manager.add(extractor.convert_status(status))
+            manager.retrieve_statuses(extractor=extractor, count=count)
         return jsonify(manager.export_to_json())
 
     @app.route("/")

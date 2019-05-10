@@ -1,4 +1,5 @@
 import bisect
+from datetime import timedelta
 
 
 class BaseExtractor:
@@ -100,6 +101,7 @@ class Status:
             "reblog_count",
             "favorite_count",
             "medias",
+            "blank",
         ]
         res = {key: getattr(self, key) for key in to_export}
         res["original_status"] = (
@@ -118,6 +120,18 @@ class StatusManager:
         index = bisect.bisect(self.items, status)
         if index == 0 or self.items[index - 1].sid != status.sid:
             self.items.insert(index, status)
+            return index
+        return False
+
+    def retrieve_statuses(self, extractor, count=10, since=None):
+        statuses = extractor.get_statuses(count, since=since)
+        last = False
+        for status in statuses:
+            idx = self.add(extractor.convert_status(status))
+            if idx is not False:
+                last = self.items[idx]
+        gap_status = Status(blank=True, date=last.date - timedelta(microseconds=1))
+        self.add(gap_status)
 
     def fetch(self, count=10, offset=0):
         res = []
