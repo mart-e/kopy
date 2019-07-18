@@ -1,6 +1,8 @@
 (() => {
 'use strict';
 
+let borderActivities = {};
+
 // source https://dev.to/ycmjason/building-a-simple-virtual-dom-from-scratch-3d05
 const createElement = (tagName, { attrs = {}, children = [] }) => {
     const vElem = Object.create(null);
@@ -79,6 +81,161 @@ const patch = ($node, $target) => {
     }
 };
 
+const computevArticle = (activity) => {
+    const vArticle = createElement('article', {
+        attrs: {
+            id: activity['sid'],
+            'data-date': activity['timestamp']
+        },
+        children: [
+            createElement('header', {
+                children: [
+                    createElement('img', {
+                        attrs: {
+                            src: activity['r_author_avatar'],
+                            class: "avatar"
+                        }
+                    }),
+                    createElement('strong', {
+                        children: [
+                            createElement('a', {
+                                attrs: {
+                                    href: activity['r_author_url'],
+                                    rel: 'nofollow noopener',
+                                    target: '_blank',
+                                    title: activity['r_author_title']
+                                },
+                                children: [
+                                    activity['r_author']
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+            createElement('div', {
+                attrs: {
+                    class: 'content'
+                },
+                children: [
+                    activity['r_content']
+                ]
+            }),
+            createElement('footer', {
+                children: [
+                    createElement('div', {
+                        attrs: {class: 'counters'},
+                        children: [
+                            activity['reblog_count'] + ' ♺ ' + activity['favorite_count'] + ' ☆',
+                        ]
+                    }),
+                    createElement('div', {
+                        children: [
+                            'On ' + activity['extractor'] + ' ',
+                            createElement('a', {
+                                attrs: {
+                                    href: activity['url'],
+                                    rel: 'nofollow noopener',
+                                    target: '_blank'
+                                },
+                                children: [
+                                    activity['date']
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            })
+        ]
+    });
+    if (activity['is_r']) {
+        vArticle.children[0].children[1].children.push(
+            createElement('span', {
+                attrs: {
+                    class: 'activity_info'
+                },
+                children: [
+                    " ♺ by ",
+                    createElement('a', {
+                        attrs: {
+                            href: activity['author_url'],
+                            rel: 'nofollow noopener',
+                            target: '_blank'
+                        },
+                        children: [activity['author']]
+                    })
+                ]
+            })
+        );
+    }
+
+    if (activity['medias'].length) {
+        vArticle.children[2].children.push(
+            createElement('div', {
+                children: [
+                    createElement('a', {
+                        attrs: {
+                            href: '#',
+                            class: 'toggle-media',
+                        },
+                        children: ["Show medias"]
+                    })
+                ]
+            })
+        );
+        activity['medias'].forEach( media => {
+            const $mediaLink = createElement('a', {
+                attrs: {
+                    style: 'display:none;',
+                    href: media['url'],
+                    rel: 'nofollow noopener',
+                    target: '_blank'
+                },
+                children: []
+            });
+            if (media['type'] == 'image') {
+                $mediaLink.children.push(
+                    createElement('img', {
+                        attrs: {
+                            src: media['inline']
+                        }
+                    })
+                );
+            } else if (media['type'] == 'video') {
+                $mediaLink.children.push(
+                    createElement('video', {
+                        attrs: {
+                            src: media['inline'],
+                            controls: ''
+                        }
+                    })
+                );
+            }
+            vArticle.children[2].children[2].children.push($mediaLink);
+        });
+    }
+
+    if (activity['last']) {
+        vArticle.children[2].children[1].children.push(
+            createElement('div', {
+                children: [
+                    createElement('a', {
+                        attrs: {
+                            class: 'load',
+                            href: '#',
+                        },
+                        children: [
+                            "Load more",
+                        ]
+                    })
+                ]
+            })
+        );
+    }
+
+    return vArticle;
+};
+
 const fetchActivities = (count) => {
 
     fetch('/fetch/' + count, {
@@ -90,162 +247,21 @@ const fetchActivities = (count) => {
         const $articleList = document.getElementById('article-list');
         resp.json().then(activities => {
             activities.forEach(activity => {
+
+                if (!(activity['extractor'] in borderActivities))
+                    borderActivities[activity['extractor']] = {};
+
+                if (!(activity.id in borderActivities[activity.extractor]))
+                    borderActivities[activity.extractor][activity.id] = activity;
+
                 const $activityDom = document.getElementById(activity['sid']);
                 if (!$activityDom) {
-                    const vArticle = createElement('article', {
-                        attrs: {
-                            id: activity['sid'],
-                            'data-date': activity['timestamp']
-                        },
-                        children: [
-                            createElement('header', {
-                                children: [
-                                    createElement('img', {
-                                        attrs: {
-                                            src: activity['r_author_avatar'],
-                                            class: "avatar"
-                                        }
-                                    }),
-                                    createElement('strong', {
-                                        children: [
-                                            createElement('a', {
-                                                attrs: {
-                                                    href: activity['r_author_url'],
-                                                    rel: 'nofollow noopener',
-                                                    target: '_blank',
-                                                    title: activity['r_author_title']
-                                                },
-                                                children: [
-                                                    activity['r_author']
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            createElement('div', {
-                                attrs: {
-                                    class: 'content'
-                                },
-                                children: [
-                                    activity['r_content']
-                                ]
-                            }),
-                            createElement('footer', {
-                                children: [
-                                    createElement('div', {
-                                        attrs: {class: 'counters'},
-                                        children: [
-                                            activity['reblog_count'] + ' ♺ ' + activity['favorite_count'] + ' ☆',
-                                        ]
-                                    }),
-                                    createElement('div', {
-                                        children: [
-                                            'On ' + activity['extractor'] + ' ',
-                                            createElement('a', {
-                                                attrs: {
-                                                    href: activity['url'],
-                                                    rel: 'nofollow noopener',
-                                                    target: '_blank'
-                                                },
-                                                children: [
-                                                    activity['date']
-                                                ]
-                                            })
-                                        ]
-                                    })
-                                ]
-                            })
-                        ]
-                    });
-                    if (activity['is_r']) {
-                        vArticle.children[0].children[1].children.push(
-                            createElement('span', {
-                                attrs: {
-                                    class: 'activity_info'
-                                },
-                                children: [
-                                    " ♺ by ",
-                                    createElement('a', {
-                                        attrs: {
-                                            href: activity['author_url'],
-                                            rel: 'nofollow noopener',
-                                            target: '_blank'
-                                        },
-                                        children: [activity['author']]
-                                    })
-                                ]
-                            })
-                        );
-                    }
 
-                    if (activity['medias'].length) {
-                        vArticle.children[2].children.push(
-                            createElement('div', {
-                                children: [
-                                    createElement('a', {
-                                        attrs: {
-                                            href: '#',
-                                            class: 'toggle-media',
-                                        },
-                                        children: ["Show medias"]
-                                    })
-                                ]
-                            })
-                        );
-                        activity['medias'].forEach( media => {
-                            const $mediaLink = createElement('a', {
-                                attrs: {
-                                    style: 'display:none;',
-                                    href: media['url'],
-                                    rel: 'nofollow noopener',
-                                    target: '_blank'
-                                },
-                                children: []
-                            });
-                            if (media['type'] == 'image') {
-                                $mediaLink.children.push(
-                                    createElement('img', {
-                                        attrs: {
-                                            src: media['inline']
-                                        }
-                                    })
-                                );
-                            } else if (media['type'] == 'video') {
-                                $mediaLink.children.push(
-                                    createElement('video', {
-                                        attrs: {
-                                            src: media['inline'],
-                                            controls: ''
-                                        }
-                                    })
-                                );
-                            }
-                            vArticle.children[2].children[2].children.push($mediaLink);
-                        });
-                    }
-
-                    if (activity['last']) {
-                        vArticle.children[2].children[1].children.push(
-                            createElement('div', {
-                                children: [
-                                    createElement('a', {
-                                        attrs: {
-                                            class: 'load',
-                                            href: '#',
-                                        },
-                                        children: [
-                                            "Load more",
-                                        ]
-                                    })
-                                ]
-                            })
-                        );
-                    }
-
+                    const vArticle = computevArticle(activity);
                     const $article = renderElem(vArticle);
                     attachEvents($article);
                     patch($article, $articleList);
+
                 }
             });
         });

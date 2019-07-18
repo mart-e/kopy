@@ -130,13 +130,15 @@ class StatusManager:
         index = bisect.bisect(self.items, status)
         if index == 0 or self.items[index - 1].sid != status.sid:
             self.items.insert(index, status)
-        elif (
+            return True
+        if (
             index != 0
             and self.items[index - 1].sid == status.sid
             and self.items[index - 1].first
             and not status.first
         ):
             self.items[index - 1].first = False
+        return False
 
     def fetch(self, count=10, offset=0):
         res = []
@@ -156,6 +158,7 @@ class StatusManager:
         for extractor in self.extractors:
             status = None
             for status in extractor.get_statuses(count):
-                self.add(status)
-            if status:
+                is_new = self.add(status)
+            if status and is_new:
+                # last inserted status was not already present
                 status.last = True
