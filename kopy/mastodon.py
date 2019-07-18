@@ -16,7 +16,7 @@ class MastodonExtractor(BaseExtractor):
         )
         return True
 
-    def get_statuses(self, count=10, since=None):
+    def _get_statuses(self, count=10, since=None):
         return self.api.timeline(
             timeline='home',
             limit=count,

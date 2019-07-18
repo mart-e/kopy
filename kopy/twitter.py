@@ -12,7 +12,7 @@ class TwitterExtractor(BaseExtractor):
         self.api = tweepy.API(auth)
         return True
 
-    def get_statuses(self, count=10, since=None):
+    def _get_statuses(self, count=10, since=None):
         return self.api.home_timeline(
             count=count,
             tweet_mode="extended",

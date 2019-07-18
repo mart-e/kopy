@@ -17,6 +17,15 @@ class BaseExtractor:
         """
         Retrieve the `count` latest statuses in the main timeline
         """
+        first = False
+        for status in self._get_statuses(count):
+            s = self.convert_status(status)
+            if not first:
+                s.first = True
+                first = True
+            yield s
+
+    def _get_statuses(self, count):
         raise NotImplementedError
 
     def format_status(self, status):
@@ -49,7 +58,8 @@ class Status:
             "favorite_count": 0,
             "medias": [],
             "original_status": None,
-            "blank": False,
+            "first": False,
+            "last": False,
         }
 
         for (prop, default) in prop_defaults.items():
@@ -100,6 +110,8 @@ class Status:
             "reblog_count",
             "favorite_count",
             "medias",
+            "first",
+            "last",
         ]
         res = {key: getattr(self, key) for key in to_export}
         res["original_status"] = (
@@ -118,6 +130,13 @@ class StatusManager:
         index = bisect.bisect(self.items, status)
         if index == 0 or self.items[index - 1].sid != status.sid:
             self.items.insert(index, status)
+        elif (
+            index != 0
+            and self.items[index - 1].sid == status.sid
+            and self.items[index - 1].first
+            and not status.first
+        ):
+            self.items[index - 1].first = False
 
     def fetch(self, count=10, offset=0):
         res = []
@@ -132,3 +151,11 @@ class StatusManager:
         for status in self.fetch():
             res.append(status.export_to_json())
         return res
+
+    def retrieve_activities(self, count=10):
+        for extractor in self.extractors:
+            status = None
+            for status in extractor.get_statuses(count):
+                self.add(status)
+            if status:
+                status.last = True
