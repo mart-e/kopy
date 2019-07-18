@@ -79,7 +79,7 @@ const patch = ($node, $target) => {
     }
 };
 
-const fetchStatuses = (count) => {
+const fetchActivities = (count) => {
 
     fetch('/fetch/' + count, {
         method: 'GET',
@@ -88,21 +88,21 @@ const fetchStatuses = (count) => {
         }
     }).then(function (resp) {
         const $articleList = document.getElementById('article-list');
-        resp.json().then(statuses => {
-            statuses.forEach(status => {
-                const $statusDom = document.getElementById(status['sid']);
-                if (!$statusDom) {
+        resp.json().then(activities => {
+            activities.forEach(activity => {
+                const $activityDom = document.getElementById(activity['sid']);
+                if (!$activityDom) {
                     const vArticle = createElement('article', {
                         attrs: {
-                            id: status['sid'],
-                            'data-date': status['timestamp']
+                            id: activity['sid'],
+                            'data-date': activity['timestamp']
                         },
                         children: [
                             createElement('header', {
                                 children: [
                                     createElement('img', {
                                         attrs: {
-                                            src: status['r_author_avatar'],
+                                            src: activity['r_author_avatar'],
                                             class: "avatar"
                                         }
                                     }),
@@ -110,13 +110,13 @@ const fetchStatuses = (count) => {
                                         children: [
                                             createElement('a', {
                                                 attrs: {
-                                                    href: status['r_author_url'],
+                                                    href: activity['r_author_url'],
                                                     rel: 'nofollow noopener',
                                                     target: '_blank',
-                                                    title: status['r_author_title']
+                                                    title: activity['r_author_title']
                                                 },
                                                 children: [
-                                                    status['r_author']
+                                                    activity['r_author']
                                                 ]
                                             })
                                         ]
@@ -128,7 +128,7 @@ const fetchStatuses = (count) => {
                                     class: 'content'
                                 },
                                 children: [
-                                    status['r_content']
+                                    activity['r_content']
                                 ]
                             }),
                             createElement('footer', {
@@ -136,20 +136,20 @@ const fetchStatuses = (count) => {
                                     createElement('div', {
                                         attrs: {class: 'counters'},
                                         children: [
-                                            status['reblog_count'] + ' ♺ ' + status['favorite_count'] + ' ☆',
+                                            activity['reblog_count'] + ' ♺ ' + activity['favorite_count'] + ' ☆',
                                         ]
                                     }),
                                     createElement('div', {
                                         children: [
-                                            'On ' + status['extractor'] + ' ',
+                                            'On ' + activity['extractor'] + ' ',
                                             createElement('a', {
                                                 attrs: {
-                                                    href: status['url'],
+                                                    href: activity['url'],
                                                     rel: 'nofollow noopener',
                                                     target: '_blank'
                                                 },
                                                 children: [
-                                                    status['date']
+                                                    activity['date']
                                                 ]
                                             })
                                         ]
@@ -158,29 +158,28 @@ const fetchStatuses = (count) => {
                             })
                         ]
                     });
-
-                    if (status['is_r']) {
+                    if (activity['is_r']) {
                         vArticle.children[0].children[1].children.push(
                             createElement('span', {
                                 attrs: {
-                                    class: 'status_info'
+                                    class: 'activity_info'
                                 },
                                 children: [
                                     " ♺ by ",
                                     createElement('a', {
                                         attrs: {
-                                            href: status['author_url'],
+                                            href: activity['author_url'],
                                             rel: 'nofollow noopener',
                                             target: '_blank'
                                         },
-                                        children: [status['author']]
+                                        children: [activity['author']]
                                     })
                                 ]
                             })
                         );
                     }
 
-                    if (status['medias'].length) {
+                    if (activity['medias'].length) {
                         vArticle.children[2].children.push(
                             createElement('div', {
                                 children: [
@@ -194,7 +193,7 @@ const fetchStatuses = (count) => {
                                 ]
                             })
                         );
-                        status['medias'].forEach( media => {
+                        activity['medias'].forEach( media => {
                             const $mediaLink = createElement('a', {
                                 attrs: {
                                     style: 'display:none;',
@@ -225,6 +224,25 @@ const fetchStatuses = (count) => {
                             vArticle.children[2].children[2].children.push($mediaLink);
                         });
                     }
+
+                    if (activity['last']) {
+                        vArticle.children[2].children[1].children.push(
+                            createElement('div', {
+                                children: [
+                                    createElement('a', {
+                                        attrs: {
+                                            class: 'load',
+                                            href: '#',
+                                        },
+                                        children: [
+                                            "Load more",
+                                        ]
+                                    })
+                                ]
+                            })
+                        );
+                    }
+
                     const $article = renderElem(vArticle);
                     attachEvents($article);
                     patch($article, $articleList);
@@ -239,15 +257,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const $refreshButton = document.getElementById('refresh-button');
     $refreshButton.addEventListener('click', (event) => {
         event.preventDefault();
-        fetchStatuses(30);
+        fetchActivities(30);
     });
     document.addEventListener('keydown', (event) => {
         const keyName = event.key;
         if (keyName == 'Home') {
-            fetchStatuses(30);
+            fetchActivities(30);
         }
     });
-    fetchStatuses(20);
+    fetchActivities(20);
 
 
 });
