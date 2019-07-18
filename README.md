@@ -13,11 +13,13 @@ interface.
 - Minimalist (light, fast, no disturbance, media hidden by default)
 - Filter and post on all or selected stream
 
-## Dependencies
+## Technology
 
 - [flask](http://flask.pocoo.org/) for the web app
 - [tweepy](http://tweepy.org/) for Twitter API
 - [Mastodon.py](https://github.com/halcy/Mastodon.py) for Mastodon API
+- No database (JSON configuration)
+- No web framework
 
 ## Configuration
 
