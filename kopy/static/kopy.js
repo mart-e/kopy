@@ -1,7 +1,6 @@
 (() => {
 'use strict';
 
-let borderActivities = {};
 
 // source https://dev.to/ycmjason/building-a-simple-virtual-dom-from-scratch-3d05
 const createElement = (tagName, { attrs = {}, children = [] }) => {
@@ -215,26 +214,75 @@ const computevArticle = (activity) => {
         });
     }
 
-    if (activity['last']) {
-        vArticle.children[2].children[1].children.push(
-            createElement('div', {
-                children: [
-                    createElement('a', {
-                        attrs: {
-                            class: 'load',
-                            href: '#',
-                        },
-                        children: [
-                            "Load more",
-                        ]
-                    })
-                ]
-            })
-        );
-    }
-
     return vArticle;
 };
+
+const computevFirstBorder = (activity) => {
+    return createElement('article', {
+        attrs: {
+            id: "first-" + activity.extractor,
+            'data-date': activity.timestamp + 1
+        },
+        children: [
+            createElement('a', {
+                attrs: {
+                    href: '#',
+                    title: "Load more recent activities on " + activity.extractor
+                },
+                children: [
+                    "⌃ " + activity.extractor
+                ]
+            })
+        ]
+    });
+}
+
+const computevLastBorder = (activity) => {
+    return createElement('article', {
+        attrs: {
+            id: "last-" + activity.extractor,
+            'data-date': activity.timestamp - 1
+        },
+        children: [
+            createElement('a', {
+                attrs: {
+                    href: '#',
+                    title: "Load older activities on " + activity.extractor
+                },
+                children: [
+                    "⌄ " + activity.extractor
+                ]
+            })
+        ]
+    });
+}
+
+
+let borderActivities = {};
+
+const renderBorders = ($articleList) => {
+    for (let extractor in borderActivities) {
+        const vFirst = computevFirstBorder(borderActivities[extractor][0]);
+        const $first = renderElem(vFirst);
+        let $activityDom = document.getElementById("first-"+extractor);
+        if (!$activityDom || $activityDom.id !== $first.id) {
+            if ($activityDom)
+                $activityDom.remove();
+            patch($first, $articleList);
+        }
+
+        const vLast = computevLastBorder(borderActivities[extractor][1]);
+        const $last = renderElem(vLast);
+        $activityDom = document.getElementById("last-"+extractor);
+        if (!$activityDom || $activityDom.id !== $last.id) {
+            if ($activityDom)
+                $activityDom.remove();
+            patch($last, $articleList);
+        }
+    }
+
+}
+
 
 const fetchActivities = (count) => {
 
@@ -248,11 +296,25 @@ const fetchActivities = (count) => {
         resp.json().then(activities => {
             activities.forEach(activity => {
 
-                if (!(activity['extractor'] in borderActivities))
-                    borderActivities[activity['extractor']] = {};
+                if (!(activity.extractor in borderActivities)) {
+                    // initialise border activities
+                    activity.first = true;
+                    borderActivities[activity.extractor] = [activity, activity];
+                }
 
-                if (!(activity.id in borderActivities[activity.extractor]))
-                    borderActivities[activity.extractor][activity.id] = activity;
+                if (activity.date > borderActivities[activity.extractor][0]) {
+                    // replace first by more recent one
+                    borderActivities[activity.extractor][0].first = false;
+                    activity.first = true;
+                    borderActivities[activity.extractor][0] = activity;
+                }
+
+                if (activity.date < borderActivities[activity.extractor][1]) {
+                    // replace last by older one
+                    borderActivities[activity.extractor][1].last = false;
+                    activity.last = true;
+                    borderActivities[activity.extractor][1] = activity;
+                }
 
                 const $activityDom = document.getElementById(activity['sid']);
                 if (!$activityDom) {
@@ -264,6 +326,7 @@ const fetchActivities = (count) => {
 
                 }
             });
+            renderBorders($articleList);
         });
     });
 };
