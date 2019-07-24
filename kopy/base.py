@@ -13,19 +13,19 @@ class BaseExtractor:
         """
         raise NotImplementedError
 
-    def get_statuses(self, count=10):
+    def get_statuses(self, count=10, since=None):
         """
         Retrieve the `count` latest statuses in the main timeline
         """
         first = False
-        for status in self._get_statuses(count):
+        for status in self._get_statuses(count, since=since):
             s = self.convert_status(status)
             if not first:
                 s.first = True
                 first = True
             yield s
 
-    def _get_statuses(self, count):
+    def _get_statuses(self, count, since=None):
         raise NotImplementedError
 
     def format_status(self, status):
@@ -140,24 +140,44 @@ class StatusManager:
             self.items[index - 1].first = False
         return False
 
-    def fetch(self, count=10, offset=0):
+    def fetch(self, count=10, extractor=None, since=None):
+        print("fetch", count, extractor, since)
         res = []
-        index = len(self.items) - 1 - offset
-        while index > 0:
-            res.append(self.items[index])
-            index -= 1
+        if not since:
+            # take `count` first items
+            index = min(len(self.items) - 1, count)
+            while index > 0:
+                if extractor and self.items[index].extractor != extractor:
+                    continue
+                res.append(self.items[index])
+                index -= 1
+        else:
+            # take `count` items starting from `since`
+            index = 0
+            stop_index = len(self.items) - 1
+            while (index < stop_index) and (len(res) < count):
+                fetched = self.items[index]
+                index += 1
+                if extractor and fetched.extractor != extractor:
+                    continue
+                if since and fetched.sid > since:
+                    continue
+                res.append(fetched)
         return res
 
-    def export_to_json(self):
+    def export_to_json(self, count=None, extractor=None, since=None):
         res = []
-        for status in self.fetch():
+        for status in self.fetch(count=count, extractor=extractor, since=since):
             res.append(status.export_to_json())
         return res
 
-    def retrieve_activities(self, count=10):
-        for extractor in self.extractors:
+    def retrieve_activities(self, count=10, extractor=None, since=None):
+        for extr in self.extractors:
+            if extractor and extr.name != extractor:
+                continue
+
             status = None
-            for status in extractor.get_statuses(count):
+            for status in extr.get_statuses(count, since):
                 is_new = self.add(status)
             if status and is_new:
                 # last inserted status was not already present

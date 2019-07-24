@@ -16,7 +16,7 @@ class TwitterExtractor(BaseExtractor):
         return self.api.home_timeline(
             count=count,
             tweet_mode="extended",
-            max_id=since and since.sid or None)
+            max_id=since)
 
     def format_status(self, status):
         return f"""

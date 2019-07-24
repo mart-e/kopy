@@ -221,7 +221,8 @@ const computevFirstBorder = (activity) => {
     return createElement('article', {
         attrs: {
             id: "first-" + activity.extractor,
-            'data-date': activity.timestamp + 1
+            'data-date': activity.timestamp + 1,
+            style: "display:none",
         },
         children: [
             createElement('a', {
@@ -235,13 +236,14 @@ const computevFirstBorder = (activity) => {
             })
         ]
     });
-}
+};
 
 const computevLastBorder = (activity) => {
     return createElement('article', {
         attrs: {
             id: "last-" + activity.extractor,
-            'data-date': activity.timestamp - 1
+            'data-date': activity.timestamp - 1,
+            // style: "display:none",
         },
         children: [
             createElement('a', {
@@ -255,14 +257,15 @@ const computevLastBorder = (activity) => {
             })
         ]
     });
-}
+};
 
 
-let borderActivities = {};
+let upGaps = {};
+let downGaps = {};
 
 const renderBorders = ($articleList) => {
-    for (let extractor in borderActivities) {
-        const vFirst = computevFirstBorder(borderActivities[extractor][0]);
+    for (let extractor in upGaps) {
+        const vFirst = computevFirstBorder(upGaps[extractor]);
         const $first = renderElem(vFirst);
         let $activityDom = document.getElementById("first-"+extractor);
         if (!$activityDom || $activityDom.id !== $first.id) {
@@ -271,7 +274,7 @@ const renderBorders = ($articleList) => {
             patch($first, $articleList);
         }
 
-        const vLast = computevLastBorder(borderActivities[extractor][1]);
+        const vLast = computevLastBorder(downGaps[extractor]);
         const $last = renderElem(vLast);
         $activityDom = document.getElementById("last-"+extractor);
         if (!$activityDom || $activityDom.id !== $last.id) {
@@ -281,54 +284,112 @@ const renderBorders = ($articleList) => {
         }
     }
 
-}
+};
 
+const _isMoreRecent = (first, second) => {
+    return first.date > second.date;
+};
 
-const fetchActivities = (count) => {
+const _isSame = (first, second) => {
+    return first.sid === second.sid;
+};
 
-    fetch('/fetch/' + count, {
+const fetchPreviousActivities = async (count) => {
+    let minStatus = false;
+    for (const extractor in downGaps) {
+        // fetch only the most out of date first
+        if (!minStatus || _isMoreRecent(downGaps[extractor], minStatus)) {
+            minStatus = downGaps[extractor];
+        }
+    }
+
+    const minId = downGaps[minStatus.extractor].sid;
+    const resp = await fetch(`/fetch-previous/${minStatus.extractor}/${count}/${minId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         }
-    }).then(function (resp) {
-        const $articleList = document.getElementById('article-list');
-        resp.json().then(activities => {
-            activities.forEach(activity => {
-
-                if (!(activity.extractor in borderActivities)) {
-                    // initialise border activities
-                    activity.first = true;
-                    borderActivities[activity.extractor] = [activity, activity];
-                }
-
-                if (activity.date > borderActivities[activity.extractor][0]) {
-                    // replace first by more recent one
-                    borderActivities[activity.extractor][0].first = false;
-                    activity.first = true;
-                    borderActivities[activity.extractor][0] = activity;
-                }
-
-                if (activity.date < borderActivities[activity.extractor][1]) {
-                    // replace last by older one
-                    borderActivities[activity.extractor][1].last = false;
-                    activity.last = true;
-                    borderActivities[activity.extractor][1] = activity;
-                }
-
-                const $activityDom = document.getElementById(activity['sid']);
-                if (!$activityDom) {
-
-                    const vArticle = computevArticle(activity);
-                    const $article = renderElem(vArticle);
-                    attachEvents($article);
-                    patch($article, $articleList);
-
-                }
-            });
-            renderBorders($articleList);
-        });
     });
+    const activities = await resp.json();
+    processFetchedActivities(activities);
+    // update the minStatus with the new fetched minimum
+    minStatus = downGaps[minStatus.extractor];
+
+    for (const extractor in downGaps) {
+        if (minStatus.extractor === extractor) {
+            continue;
+        }
+
+        if (_isMoreRecent(minStatus, downGaps[extractor])) {
+            // `minStatus.extractor` still did not catched up with `extractor`
+            continue;
+        }
+
+        const minId = downGaps[extractor].sid;
+        fetch(`/fetch-previous/${extractor}/${count}/${minId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((resp) => {
+            return resp.json();
+        }).then((activities) => {
+            processFetchedActivities(activities);
+        });
+    }
+};
+
+const fetchActivities = async (count) => {
+
+    const resp = await fetch('/fetch/' + count, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    return processFetchedActivities(await resp.json());
+};
+
+const processFetchedActivities = (activities) => {
+    const $articleList = document.getElementById('article-list');
+    let maxActivities = {};
+    let minActivities = {};
+
+    activities.forEach(activity => {
+        const extr = activity.extractor;
+
+        if (!(extr in maxActivities) || _isMoreRecent(activity, maxActivities[extr])) {
+            // initialise border activities
+            maxActivities[extr] = activity;
+        }
+        if (!(extr in minActivities) || _isMoreRecent(minActivities[extr], activity)) {
+            // initialise border activities
+            minActivities[extr] = activity;
+        }
+
+        const $activityDom = document.getElementById(activity['sid']);
+        if (!$activityDom) {
+
+            const vArticle = computevArticle(activity);
+            const $article = renderElem(vArticle);
+            attachEvents($article);
+            patch($article, $articleList);
+
+        }
+    });
+    for (const extractor in maxActivities) {
+        if (!(extractor in upGaps) || _isMoreRecent(maxActivities[extractor], upGaps[extractor])) {
+            upGaps[extractor] = maxActivities[extractor];
+        }
+    }
+    for (const extractor in minActivities) {
+        if (!(extractor in downGaps) || _isMoreRecent(downGaps[extractor], minActivities[extractor])) {
+            downGaps[extractor] = minActivities[extractor];
+        }
+    }
+    renderBorders($articleList);
+
 };
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -342,6 +403,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const keyName = event.key;
         if (keyName == 'Home') {
             fetchActivities(30);
+        } else if (keyName == 'End') {
+            fetchPreviousActivities(30);
         }
     });
     fetchActivities(20);

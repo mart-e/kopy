@@ -35,8 +35,13 @@ def create_app():
     @app.route("/fetch")
     @app.route("/fetch/<int:count>")
     def fetch(count=10):
-        manager.retrieve_activities(count)
-        return jsonify(manager.export_to_json())
+        manager.retrieve_activities(count=count)
+        return jsonify(manager.export_to_json(count=count))
+
+    @app.route("/fetch-previous/<extract>/<int:count>/<min_id>")
+    def fetchPrevious(extract, count, min_id):
+        manager.retrieve_activities(extractor=extract, count=count, since=min_id)
+        return jsonify(manager.export_to_json(extractor=extract, count=count, since=min_id))
 
     @app.route("/")
     def main():

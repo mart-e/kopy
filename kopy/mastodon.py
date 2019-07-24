@@ -20,7 +20,7 @@ class MastodonExtractor(BaseExtractor):
         return self.api.timeline(
             timeline='home',
             limit=count,
-            since_id=since and since.sid or None)
+            since_id=since)
 
     def format_status(self, status):
         return f"""
