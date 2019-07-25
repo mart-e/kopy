@@ -13,10 +13,7 @@ class TwitterExtractor(BaseExtractor):
         return True
 
     def _get_statuses(self, count=10, since=None):
-        return self.api.home_timeline(
-            count=count,
-            tweet_mode="extended",
-            max_id=since)
+        return self.api.home_timeline(count=count, tweet_mode="extended", max_id=since)
 
     def format_status(self, status):
         return f"""
@@ -51,7 +48,7 @@ class TwitterExtractor(BaseExtractor):
                     f"{entity['display_url']}</a>",
                 )
             for entity in entry.entities["user_mentions"]:
-                source = entry.full_text[entity['indices'][0]:entity['indices'][1]]
+                source = entry.full_text[entity["indices"][0] : entity["indices"][1]]
                 text = text.replace(
                     source,
                     f"<a href='https://twitter.com/{entity['screen_name']}' rel='nofollow noopener'"
@@ -62,7 +59,7 @@ class TwitterExtractor(BaseExtractor):
         def extract_media(entry):
             medias = []
             entities = entry.entities.get("media", [])
-            if hasattr(entry, 'extended_entities'):
+            if hasattr(entry, "extended_entities"):
                 entities.extend(entry.extended_entities.get("media", []))
             for entity in entities:
                 if entity["type"] == "photo":
@@ -89,7 +86,7 @@ class TwitterExtractor(BaseExtractor):
                 sid=str(r.id),
                 date=r.created_at,
                 author=r.user.name,
-                author_title="@"+r.user.screen_name,
+                author_title="@" + r.user.screen_name,
                 author_avatar=r.user.profile_image_url_https,
                 author_url=f"https://twitter.com/{r.user.screen_name}",
                 content=full_text,
@@ -108,7 +105,7 @@ class TwitterExtractor(BaseExtractor):
             sid=str(status.id),
             date=status.created_at,
             author=status.user.name,
-            author_title="@"+status.user.screen_name,
+            author_title="@" + status.user.screen_name,
             author_avatar=status.user.profile_image_url_https,
             author_url=f"https://twitter.com/{status.user.screen_name}",
             content=full_text,

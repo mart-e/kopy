@@ -114,9 +114,9 @@ class Status:
             "last",
         ]
         res = {key: getattr(self, key) for key in to_export}
-        res["original_status"] = (
-            self.original_status and self.original_status.export_to_json()
-        )
+        if self.original_status:
+            res["original_status"] = self.original_status.export_to_json()
+            res["url"] = res["original_status"]["url"]
         return res
 
 
@@ -141,28 +141,16 @@ class StatusManager:
         return False
 
     def fetch(self, count=10, extractor=None, since=None):
-        print("fetch", count, extractor, since)
         res = []
-        if not since:
-            # take `count` first items
-            index = min(len(self.items) - 1, count)
-            while index > 0:
-                if extractor and self.items[index].extractor != extractor:
-                    continue
-                res.append(self.items[index])
-                index -= 1
-        else:
-            # take `count` items starting from `since`
-            index = 0
-            stop_index = len(self.items) - 1
-            while (index < stop_index) and (len(res) < count):
-                fetched = self.items[index]
-                index += 1
-                if extractor and fetched.extractor != extractor:
-                    continue
-                if since and fetched.sid > since:
-                    continue
-                res.append(fetched)
+        index = len(self.items) - 1
+        while index > 0 and len(res) < count:
+            fetched = self.items[index]
+            index -= 1
+            if extractor and fetched.extractor != extractor:
+                continue
+            if since and fetched.sid > since:
+                continue
+            res.append(fetched)
         return res
 
     def export_to_json(self, count=None, extractor=None, since=None):
