@@ -1,3 +1,6 @@
+MOVED TO GITLAB
+https://gitlab.com/mart-e/kopy
+
 # Kopy ☕
 
 Minimal web app to display statuses from Twitter and Mastodon in a unified
